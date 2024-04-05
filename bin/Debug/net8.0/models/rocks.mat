@@ -1,0 +1,7 @@
+name black
+type DefaultMeshMaterial
+f4 modulate 0.0 0.0 0.0 1.0
+
+name white
+type DefaultMeshMaterial
+f4 modulate 1.0 1.0 1.0 1.0
