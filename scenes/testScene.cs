@@ -33,7 +33,7 @@ namespace scenes{
                 new AssimpMesh3D("models/rocks"){visible = false},
                 new AssimpMesh3D("models/spaceship"){euler = new Vector3(-90f, 0f, -90f), position = new Vector3(0f, -10f, 65f)},
                 new StarBG(),
-                new TextMesh2D(){mat = new TextMaterial(), text = "ABCDEF\nGHIJKL\nMNOPQR\nSTUVWX\nYZ\n012345\n6789", scale = Vector3.One * 0.2f},
+                new TextMesh2D(){mat = new TextMaterial(){modulate = Color4.Blue}, text = "ABCDEF\nGHIJKL\nMNOPQR\nSTUVWX\nYZ\n012345\n6789", scale = Vector3.One * 0.2f},
             };
 
             

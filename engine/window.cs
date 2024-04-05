@@ -69,6 +69,8 @@ namespace engine{
             GL.CullFace(CullFaceMode.Back);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Multisample);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             //GL.Disable(EnableCap.PolygonSmooth);
             
             float[] f = new float[2];

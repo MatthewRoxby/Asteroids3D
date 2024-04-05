@@ -150,15 +150,13 @@ namespace engine{
                 new Vector2(-1,0)
             })},
             {'Q', new LineMesh2D(new Vector2[]{
-                new Vector2(-1f,-1),
-                new Vector2(-1f,1),
+                new Vector2(0,0),
+                new Vector2(0.4f,-1),
+                new Vector2(0.5f,-1),
                 new Vector2(0.5f,1),
-                new Vector2(0.5f,-1),
-                new Vector2(1,-1),
-                new Vector2(0.5f,-1),
-                new Vector2(0, 0),
-                new Vector2(0.5f, -1),
-                new Vector2(-1f,-1)
+                new Vector2(-1,1),
+                new Vector2(-1,-1),
+                new Vector2(1,-1)
             })},
             {'R', new LineMesh2D(new Vector2[]{
                 new Vector2(-1,-1),
@@ -216,9 +214,9 @@ namespace engine{
             })},
             {'Y', new LineMesh2D(new Vector2[]{
                 new Vector2(0,-1),
-                new Vector2(0,0.5f),
+                new Vector2(0,0.0f),
                 new Vector2(1,1),
-                new Vector2(0,0.5f),
+                new Vector2(0,0.0f),
                 new Vector2(-1,1)
             })},
             {'Z', new LineMesh2D(new Vector2[]{
@@ -254,6 +252,66 @@ namespace engine{
                 new Vector2(-0.5f,-1),
                 new Vector2(0.5f,-1)
             })},
+            {'3', new LineMesh2D(new Vector2[]{
+                new Vector2(-0.5f,1),
+                new Vector2(0.5f,1),
+                new Vector2(0.5f,0),
+                new Vector2(-0.4f,0),
+                new Vector2(0.5f,0),
+                new Vector2(0.5f,-1),
+                new Vector2(-0.5f,-1)
+            })},
+            {'4', new LineMesh2D(new Vector2[]{
+                new Vector2(0,-1),
+                new Vector2(0,1),
+                new Vector2(-0.1f, 1),
+                new Vector2(-0.5f, 0.1f),
+                new Vector2(-0.5f,0),
+                new Vector2(0.5f, 0)
+            })},
+            {'5', new LineMesh2D(new Vector2[]{
+                new Vector2(0.5f,1),
+                new Vector2(-0.5f,1),
+                new Vector2(-0.5f,0f),
+                new Vector2(0f,0f),
+                new Vector2(0.5f, -0.4f),
+                new Vector2(0.5f, -0.6f),
+                new Vector2(0f, -1),
+                new Vector2(-0.5f, -1)
+            })},
+            {'6', new LineMesh2D(new Vector2[]{
+                new Vector2(0.5f,1),
+                new Vector2(-0.2f,1),
+                new Vector2(-0.5f,0.7f),
+                new Vector2(-0.5f,-1),
+                new Vector2(0.5f,-1),
+                new Vector2(0.5f,0f),
+                new Vector2(-0.5f,0)
+            })},
+            {'7', new LineMesh2D(new Vector2[]{
+                new Vector2(-0.5f,1),
+                new Vector2(0.5f,1),
+                new Vector2(0.5f,0.9f),
+                new Vector2(0f,-1)
+            })},
+            {'8', new LineMesh2D(new Vector2[]{
+                new Vector2(-0.5f,0),
+                new Vector2(0.5f,0),
+                new Vector2(0.5f,1),
+                new Vector2(-0.5f,1),
+                new Vector2(-0.5f,-1),
+                new Vector2(0.5f,-1),
+                new Vector2(0.5f,0)
+            })},
+            {'9', new LineMesh2D(new Vector2[]{
+                new Vector2(0.5f,0),
+                new Vector2(-0.5f,0),
+                new Vector2(-0.5f,1),
+                new Vector2(0.5f,1),
+                new Vector2(0.5f,-0.7f),
+                new Vector2(0.2f, -1),
+                new Vector2(-0.5f,-1)
+            })},
         };
 
         public static LineMesh2D[] getString(string s){
@@ -285,6 +343,13 @@ namespace engine{
 
         public float padding = 2.5f;
 
+        public float percent_visible = 10f;
+        public float fade_in = 0.1f;
+
+        public float scramble_strength = 3f;
+
+        public float scramble_in = 0.3f;
+
         public TextMesh2D(string name = "TextMesh2D") : base(name){
             
         }
@@ -302,20 +367,37 @@ namespace engine{
             GL.Disable(EnableCap.DepthTest);
             if(mat != null && text != String.Empty){
                 Vector3 cursorPos = Vector3.Zero;
-                foreach(char c in text){
+                for(int i = 0; i < text.Length; i++){
+                    char c = text[i];
                     if(c == '\n'){
                         cursorPos = new Vector3(0, cursorPos.Y - padding, 0);
                         continue;
                     }
                     
                     LineMesh2D m = TextLoader.getChar(c);
+
+                    float pos = (float)i / (float)text.Length;
                     
-                    if(m != null){
+                    
+                    if(m != null && pos < percent_visible){
                         if(m.thickness != thickness){
                             m.thickness = thickness;
                             m.Remesh();
                         }
                         mat.transformation = Matrix4.CreateTranslation(cursorPos) * transformation;
+
+                        float alpha = 1.0f;
+                        if(fade_in != 0f){
+                            alpha = (percent_visible - pos) / fade_in;
+                        }
+                        mat.modulate.A = alpha;
+
+                        float scramble = 0f;
+                        if(scramble_in != 0f){
+                            scramble = (percent_visible - pos) / scramble_in;
+                        }
+                        mat.scramble_amount = MathF.Max(1f - scramble, 0f) * scramble_strength;
+                        
                         mat.Use();
                         GL.BindVertexArray(m.mesh.VAO);
                         if(m.mesh.elements){
@@ -341,6 +423,10 @@ namespace engine{
             ImGui.InputTextMultiline("text", ref text, 100, System.Numerics.Vector2.One * 200);
             ImGui.SliderFloat("padding", ref padding, 0f, 5f);
             ImGui.SliderFloat("thickness", ref thickness, 0.1f, 10f);
+            ImGui.SliderFloat("scramble strength", ref scramble_strength, 0f, 10f);
+            ImGui.SliderFloat("percent visible", ref percent_visible, 0f, 1f + (scramble_in > fade_in? scramble_in : fade_in));
+            ImGui.SliderFloat("fade in", ref fade_in, 0f, 1f);
+            ImGui.SliderFloat("scramble in", ref scramble_in, 0f, 1f);
         }
 
 

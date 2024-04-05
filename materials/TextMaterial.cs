@@ -7,6 +7,7 @@ namespace materials{
     public class TextMaterial : TransformMaterial2D{
 
         public Color4 modulate = Color4.White;
+        public float scramble_amount = 0.0f;
 
         public TextMaterial() : base("shaders/text.vert", "shaders/text.frag"){
 
@@ -24,6 +25,7 @@ namespace materials{
         {
             base.Use();
             GL.Uniform4(GL.GetUniformLocation(shader.program, "modulate"), modulate);
+            GL.Uniform1(GL.GetUniformLocation(shader.program, "scramble"), scramble_amount);
         }
 
         public override void inspect()
